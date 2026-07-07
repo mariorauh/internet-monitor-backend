@@ -1,10 +1,27 @@
 import time
+import signal
+import sys
 
 import app.config as config
 from app.database import Database
 from app.internet_monitor import InternetMonitor
 from app.logger import logger
 from app.outage_detector import OutageDetector
+
+
+running = True
+
+
+def shutdown(signum, frame) -> None:
+    global running
+
+    logger.info("Shutdown signal received.")
+
+    running = False
+
+
+signal.signal(signal.SIGTERM, shutdown)
+signal.signal(signal.SIGINT, shutdown)
 
 
 def main() -> None:
@@ -19,7 +36,7 @@ def main() -> None:
     logger.info("Database initialized")
     logger.info("Monitoring interval: %s seconds", config.CHECK_INTERVAL)
 
-    while True:
+    while running:
 
         try:
 
@@ -42,6 +59,10 @@ def main() -> None:
             logger.exception("Unexpected error during monitoring.")
 
         time.sleep(config.CHECK_INTERVAL)
+
+    logger.info("Internet Monitor stopped.")
+
+    sys.exit(0) 
 
 
 if __name__ == "__main__":
