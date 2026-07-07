@@ -1,0 +1,14 @@
+services:
+
+  internet-monitor:
+
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+
+    container_name: internet-monitor
+
+    restart: unless-stopped
+
+    volumes:
+      - ../data:/data

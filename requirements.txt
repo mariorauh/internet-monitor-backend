@@ -1,0 +1,5 @@
+fastapi
+uvicorn
+requests
+ping3
+sqlalchemy
