@@ -7,6 +7,7 @@ from app.database import Database
 from app.internet_monitor import InternetMonitor
 from app.logger import logger
 from app.outage_detector import OutageDetector
+from app.version import APP_NAME, APP_VERSION
 
 
 running = True
@@ -26,7 +27,7 @@ signal.signal(signal.SIGINT, shutdown)
 
 def main() -> None:
 
-    logger.info("%s %s", config.APP_NAME, config.APP_VERSION)
+    logger.info("%s %s", APP_NAME, APP_VERSION)
     logger.info("Starting monitoring...")
 
     database = Database()
