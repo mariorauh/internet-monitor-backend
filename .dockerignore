@@ -1,0 +1,16 @@
+.git
+.gitignore
+
+README.md
+LICENSE
+
+.venv/
+.vscode/
+.idea/
+
+__pycache__/
+*.pyc
+
+data/
+
+tests/
