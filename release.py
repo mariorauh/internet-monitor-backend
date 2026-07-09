@@ -101,6 +101,12 @@ def main() -> None:
 
     print()
     print(f"Updating version to {version}...")
+    
+    changes = input("Enter Changes: ").strip()
+    
+    if not changes:
+        print("No changes entered.")
+        sys.exit(1)
 
     update_addon_version(config_file, version)
     update_backend_version(backend_config_file, version)
@@ -124,7 +130,7 @@ def main() -> None:
     print()
 
     run(["git", "add", "."], backend_repo)
-    run(["git", "commit", "-m", f"Release {version}"], backend_repo)
+    run(["git", "commit", "-m", f"Changes: {changes}"], backend_repo)
     run(["git", "tag", f"v{version}"], backend_repo)
     run(["git", "push", "origin", "main"], backend_repo)
     run(["git", "push", "origin", f"v{version}"], backend_repo)
@@ -138,7 +144,7 @@ def main() -> None:
     print()
 
     run(["git", "add", "."], addon_repo)
-    run(["git", "commit", "-m", f"Release {version}"], addon_repo)
+    run(["git", "commit", "-m", f"Changes: {changes}"], addon_repo)
     run(["git", "push", "origin", "main"], addon_repo)
 
     print()
