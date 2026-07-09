@@ -32,6 +32,21 @@ def update_addon_version(config_file: Path, version: str) -> None:
     )
 
     config_file.write_text(text, encoding="utf-8")
+    
+    
+def update_backend_version(config_file: Path, version: str) -> None:
+    """Update APP_VERSION inside backend config.py."""
+
+    text = config_file.read_text(encoding="utf-8")
+
+    text = re.sub(
+        r'^APP_VERSION\s*=\s*".*"$',
+        f'APP_VERSION = "{version}"',
+        text,
+        flags=re.MULTILINE,
+    )
+
+    config_file.write_text(text, encoding="utf-8")
 
 
 def main() -> None:
@@ -51,12 +66,25 @@ def main() -> None:
         / "internet_monitor"
         / "config.yaml"
     )
+    
+    backend_config_file = (
+        backend_repo
+        / "app"
+        / "config.py"
+    )
 
     if not config_file.exists():
         print()
         print("ERROR")
-        print(f"config.yaml not found:")
+        print(f"Add-on config.yaml not found:")
         print(config_file)
+        sys.exit(1)
+
+    if not backend_config_file.exists():
+        print()
+        print("ERROR")
+        print(f"Backend config.py not found:")
+        print(backend_config_file)
         sys.exit(1)
 
     print()
@@ -72,11 +100,13 @@ def main() -> None:
         sys.exit(1)
 
     print()
-    print(f"Updating Add-on version to {version}...")
+    print(f"Updating version to {version}...")
 
     update_addon_version(config_file, version)
+    update_backend_version(backend_config_file, version)
 
-    print("Done.")
+    print("✓ Add-on config.yaml updated")
+    print("✓ Backend config.py updated")
     print()
 
     answer = input("Continue? (y/n): ").strip().lower()
