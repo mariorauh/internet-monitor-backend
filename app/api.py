@@ -4,34 +4,25 @@ import json
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 
 import app.config as config
-from app.status import status_store
+from app.status import status_as_dict
 
 
 class ApiHandler(BaseHTTPRequestHandler):
-    """HTTP API for the Internet Monitor."""
 
     server_version = (
         f"{config.APP_NAME}/{config.APP_VERSION}"
     )
 
-    # -------------------------------------------------------------------------
-
     def do_GET(self) -> None:
 
-        if self.path == "/status":
+        if self.path != "/status":
 
-            self._send_status()
+            self.send_error(404)
 
             return
 
-        self.send_error(404, "Not Found")
-
-    # -------------------------------------------------------------------------
-
-    def _send_status(self) -> None:
-
         body = json.dumps(
-            status_store.get(),
+            status_as_dict(),
             indent=4,
         ).encode("utf-8")
 
@@ -39,7 +30,7 @@ class ApiHandler(BaseHTTPRequestHandler):
 
         self.send_header(
             "Content-Type",
-            "application/json",
+            "application/json; charset=utf-8",
         )
 
         self.send_header(
@@ -51,28 +42,14 @@ class ApiHandler(BaseHTTPRequestHandler):
 
         self.wfile.write(body)
 
-    # -------------------------------------------------------------------------
-
     def log_message(
         self,
-        format: str,
-        *args,
+        *_,
     ) -> None:
-        """
-        Disable default HTTP logging.
-
-        All logging is handled by the application logger.
-        """
         return
 
 
-# =============================================================================
-# Public API
-# =============================================================================
-
-
 def start_api() -> None:
-    """Start the REST API."""
 
     server = ThreadingHTTPServer(
         (

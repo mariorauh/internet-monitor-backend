@@ -1,13 +1,12 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, asdict
-from datetime import datetime, UTC
+from dataclasses import asdict, dataclass
+from datetime import UTC, datetime
 from threading import Lock
 
 
-@dataclass
+@dataclass(slots=True)
 class Status:
-
     internet: bool = False
     dns: bool = False
     ping: float = 0.0
@@ -19,9 +18,7 @@ class Status:
 class StatusStore:
 
     def __init__(self) -> None:
-
         self._lock = Lock()
-
         self._status = Status()
 
     def update(
@@ -38,16 +35,20 @@ class StatusStore:
             self._status = Status(
                 internet=internet,
                 dns=dns,
-                ping=ping,
-                packet_loss=packet_loss,
+                ping=round(ping, 2),
+                packet_loss=round(packet_loss, 2),
                 timestamp=datetime.now(UTC).isoformat(),
                 version=version,
             )
 
-    def get(self) -> dict:
+    def get(self) -> Status:
 
         with self._lock:
-            return asdict(self._status)
+            return self._status
 
 
 status_store = StatusStore()
+
+
+def status_as_dict() -> dict:
+    return asdict(status_store.get())

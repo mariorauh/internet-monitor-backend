@@ -6,7 +6,7 @@ from pathlib import Path
 
 APP_NAME = "Internet Monitor"
 
-APP_VERSION = "0.2.3"
+APP_VERSION = "0.3.0"
 
 LOG_LEVEL = "INFO"
 
