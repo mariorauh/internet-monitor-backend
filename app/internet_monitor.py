@@ -105,6 +105,8 @@ class InternetMonitor:
         else:
 
             average_ping = None
+            
+        
 
         return (
             average_ping,

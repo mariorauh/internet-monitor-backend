@@ -7,7 +7,13 @@ from app.database import Database
 from app.internet_monitor import InternetMonitor
 from app.logger import logger
 from app.outage_detector import OutageDetector
-from app.version import APP_NAME, APP_VERSION
+import app.config as config
+from app.status import status_store
+from threading import Thread
+
+from app.api import start_api
+
+
 
 
 running = True
@@ -27,7 +33,11 @@ signal.signal(signal.SIGINT, shutdown)
 
 def main() -> None:
 
-    logger.info("%s %s", APP_NAME, APP_VERSION)
+    logger.info(
+        "%s %s",
+        config.APP_NAME,
+        config.APP_VERSION,
+    )
     logger.info("Starting monitoring...")
 
     database = Database()
@@ -36,6 +46,20 @@ def main() -> None:
 
     logger.info("Database initialized")
     logger.info("Monitoring interval: %s seconds", config.CHECK_INTERVAL)
+    
+    if config.API_ENABLED:
+
+        Thread(
+            target=start_api,
+            daemon=True,
+            name="REST API",
+        ).start()
+
+        logger.info(
+            "REST API started on %s:%d",
+            config.API_HOST,
+            config.API_PORT,
+        )
 
     while running:
 
@@ -46,6 +70,14 @@ def main() -> None:
             database.save_measurement(measurement)
 
             outage_detector.process(measurement)
+            
+            status_store.update(
+                internet=measurement.internet_ok,
+                dns=measurement.dns_ok,
+                ping=measurement.ping_ms or 0.0,
+                packet_loss=measurement.packet_loss,
+                version=config.APP_VERSION,
+            )
 
             logger.info(
                 "Internet=%s | DNS=%s | Ping=%s ms | Packet Loss=%.0f%%",
