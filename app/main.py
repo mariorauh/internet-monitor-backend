@@ -39,6 +39,14 @@ def main() -> None:
         config.APP_VERSION,
     )
     logger.info("Starting monitoring...")
+    
+    logger.info(
+        "%s %s",
+        config.APP_NAME,
+        config.APP_VERSION,
+    )
+
+    config.log_configuration(logger)
 
     database = Database()
     monitor = InternetMonitor()

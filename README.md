@@ -1,31 +1,31 @@
 # Internet Monitor
 
-A lightweight Home Assistant add-on for monitoring Internet connectivity,
-detecting outages and providing a REST API for automation and dashboards.
+A lightweight Home Assistant add-on for monitoring Internet connectivity, detecting outages and providing a REST API for automations and dashboards.
 
 ---
 
-## Features
+# Features
 
 - Continuous Internet connectivity monitoring
+- HTTP availability monitoring
 - DNS availability monitoring
-- ICMP latency measurement
+- ICMP ping monitoring
 - Packet loss detection
-- Outage detection
+- Automatic outage detection
 - SQLite database
 - REST API
-- Docker support
 - Home Assistant Add-on
-- Multi-architecture Docker images
-- Automated GitHub releases
+- Multi-architecture Docker images (amd64 / aarch64)
+- Local Docker test environment
+- Automated release process
 
 ---
 
-## REST API
+# REST API
 
 The Internet Monitor exposes the current monitoring status via HTTP.
 
-### GET /status
+## GET /status
 
 Example response
 
@@ -36,13 +36,31 @@ Example response
     "ping": 23.61,
     "packet_loss": 0.0,
     "timestamp": "2026-07-10T08:35:14Z",
-    "version": "0.3.0"
+    "version": "0.3.1"
 }
 ```
 
 ---
 
-## Docker
+# Home Assistant Configuration
+
+The following settings can be configured directly from the Home Assistant Add-on configuration page.
+
+| Option | Description | Default |
+|---------|-------------|---------|
+| HTTP Target | URL used for HTTP availability check | https://www.google.com |
+| HTTP Timeout | HTTP request timeout (seconds) | 5 |
+| DNS Target | DNS server used for DNS lookup | 8.8.8.8 |
+| Ping Target | Host used for ICMP ping | 1.1.1.1 |
+| Ping Count | Number of ICMP packets | 4 |
+| Ping Timeout | Timeout per ICMP packet (seconds) | 2 |
+| Check Interval | Monitoring interval (seconds) | 5 |
+
+The effective configuration is logged automatically during application startup.
+
+---
+
+# Docker
 
 Build
 
@@ -67,25 +85,53 @@ http://localhost:8080/status
 
 ---
 
-## Home Assistant Add-on
+# Home Assistant Add-on
 
-Install the repository
+Repository
 
 ```
 https://github.com/mariorauh/internet-monitor-addon
 ```
 
-After installation the add-on exposes
+After installation the REST API is available via
 
 ```
-http://<HA-IP>:8080/status
+http://<HOME_ASSISTANT_IP>:8080/status
 ```
 
 ---
 
-## Development
+# Local Docker Test
 
-Clone
+A complete local Docker test environment is included.
+
+## Windows
+
+```
+test\test-docker.bat
+```
+
+## Linux / macOS
+
+```bash
+./test/test-docker.sh
+```
+
+The test environment automatically
+
+- creates a dedicated Python virtual environment
+- installs or updates required Python packages
+- builds the Docker image
+- starts the Docker container
+- waits for the Docker Healthcheck
+- validates the REST API
+- continuously displays the current monitoring status
+
+---
+
+# Development
+
+Clone the repository
 
 ```bash
 git clone https://github.com/mariorauh/internet-monitor-backend.git
@@ -97,7 +143,7 @@ Install dependencies
 pip install -r requirements.txt
 ```
 
-Run
+Run locally
 
 ```bash
 python -m app.main
@@ -105,37 +151,11 @@ python -m app.main
 
 ---
 
-## Local Docker Test
+# Release
 
-The repository contains a complete local Docker test environment.
+The repository contains an automated release tool.
 
-Windows
-
-```text
-test\test-docker.bat
-```
-
-Linux / macOS
-
-```bash
-./test/test-docker.sh
-```
-
-The test automatically
-
-- creates a virtual environment
-- installs required Python packages
-- builds the Docker image
-- starts the container
-- waits for the Docker health check
-- validates the REST API
-- continuously displays the current monitoring status
-
----
-
-## Release
-
-A release is created using
+Run
 
 ```bash
 python release.py
@@ -143,49 +163,83 @@ python release.py
 
 The release tool automatically
 
-- updates the application version
-- updates the Home Assistant add-on version
+- updates the backend version
+- updates the Home Assistant Add-on version
 - creates the Git commit
 - creates the Git tag
 - pushes the repository
-- publishes the Docker image via GitHub Actions
+- triggers the GitHub Actions Docker build
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```
 internet-monitor-backend/
 
 ├── app/
+│   ├── api.py
+│   ├── config.py
+│   ├── database.py
+│   ├── internet_monitor.py
+│   ├── logger.py
+│   ├── models.py
+│   ├── outage_detector.py
+│   ├── ring_logger.py
+│   ├── status.py
+│   └── main.py
+│
+├── docker/
+│   └── compose.yaml
+│
 ├── test/
+│   ├── .venv/
+│   ├── requirements.txt
+│   ├── test.py
+│   ├── test-docker.bat
+│   └── test-docker.sh
+│
 ├── Dockerfile
+├── requirements.txt
 ├── release.py
-└── requirements.txt
+└── README.md
 ```
 
 ---
 
-## Roadmap
+# Roadmap
 
-### Version 0.3.x
+## Version 0.3.x
 
-- REST API
-- Home Assistant REST sensors
-- Local Docker testing
+- ✅ REST API
+- ✅ Home Assistant configuration
+- ✅ Local Docker test environment
 
-### Version 0.4.x
+## Version 0.4.x
 
+- Home Assistant REST entities
+- Internet status sensor
+- DNS status sensor
+- Ping sensor
+- Packet loss sensor
+- Availability sensor
+
+## Version 0.5.x
+
+- Historical REST endpoint
 - Statistics endpoint
-- Historical data endpoint
+- Uptime calculation
+- Outage history
 
-### Version 0.5.x
+## Version 1.0
 
-- Grafana support
+- Stable public API
 - Long-term statistics
+- Dashboard support
+- Grafana integration
 
 ---
 
-## License
+# License
 
 MIT License
